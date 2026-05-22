@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" width="900" height="560" style="background:#F7F6F2; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <!-- Title & Metadata -->
+  <text x="40" y="45" font-size="20" font-weight="bold" fill="#1A1A1A" font-family="Georgia, serif" font-style="italic">ClaimVoyant — System Architecture Map</text>
+  <text x="40" y="65" font-size="10" font-weight="bold" fill="#1A1A1A" opacity="0.6" letter-spacing="1.5">GDG SUBMISSION: FUTURE OF WORK BRIEF</text>
+
+  <!-- Left Column: Android Sandbox Simulator -->
+  <rect x="40" y="90" width="240" height="360" rx="6" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5" />
+  <rect x="40" y="90" width="240" height="35" rx="6" fill="#1A1A1A" />
+  <text x="50" y="112" font-size="12" font-weight="bold" fill="#FFFFFF">1. Android App & Sandbox</text>
+  
+  <g transform="translate(50, 140)">
+    <rect x="0" y="0" width="220" height="40" rx="4" fill="#F7F6F2" stroke="#1A1A1A" stroke-width="1" />
+    <text x="10" y="24" font-size="11" font-weight="bold" fill="#1A1A1A">Voice Onboarding (Live TTS)</text>
+  </g>
+  
+  <g transform="translate(50, 195)">
+    <rect x="0" y="0" width="220" height="40" rx="4" fill="#F7F6F2" stroke="#1A1A1A" stroke-width="1" />
+    <text x="10" y="24" font-size="11" font-weight="bold" fill="#1A1A1A">CameraX Damage & OCR Scan</text>
+  </g>
+  
+  <g transform="translate(50, 250)">
+    <rect x="0" y="0" width="220" height="40" rx="4" fill="#F7F6F2" stroke="#1A1A1A" stroke-width="1" />
+    <text x="10" y="24" font-size="11" font-weight="bold" fill="#1A1A1A">On-Device Report Compiler</text>
+  </g>
+  
+  <g transform="translate(50, 305)">
+    <rect x="0" y="0" width="220" height="40" rx="4" fill="#1A1A1A" />
+    <text x="10" y="24" font-size="11" font-weight="bold" fill="#FFFFFF">Interactive Review Console</text>
+  </g>
+
+  <!-- Middle Column: Cloud Run Backend API -->
+  <rect x="330" y="90" width="240" height="360" rx="6" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5" />
+  <rect x="330" y="90" width="240" height="35" rx="6" fill="#1A1A1A" />
+  <text x="340" y="112" font-size="12" font-weight="bold" fill="#FFFFFF">2. Cloud Run FastAPI Server</text>
+  
+  <g transform="translate(340, 140)">
+    <rect x="0" y="0" width="220" height="45" rx="4" fill="#F7F6F2" stroke="#1A1A1A" stroke-width="1" />
+    <text x="10" y="20" font-size="11" font-weight="bold" fill="#1A1A1A">/api/claims Post Entry</text>
+    <text x="10" y="35" font-size="9" fill="#1A1A1A" opacity="0.6">Initiates state scheduler</text>
+  </g>
+  
+  <g transform="translate(340, 200)">
+    <rect x="0" y="0" width="220" height="45" rx="4" fill="#F7F6F2" stroke="#1A1A1A" stroke-width="1" />
+    <text x="10" y="20" font-size="11" font-weight="bold" fill="#1A1A1A">Gemini LLM Verification</text>
+    <text x="10" y="35" font-size="9" fill="#1A1A1A" opacity="0.6">Verify policy & check fraud</text>
+  </g>
+  
+  <g transform="translate(340, 260)">
+    <rect x="0" y="0" width="220" height="45" rx="4" fill="#F7F6F2" stroke="#1A1A1A" stroke-width="1" />
+    <text x="10" y="20" font-size="11" font-weight="bold" fill="#1A1A1A">SSE /stream Pipeline</text>
+    <text x="10" y="35" font-size="9" fill="#1A1A1A" opacity="0.6">Real-time progressive narration</text>
+  </g>
+  
+  <g transform="translate(340, 320)">
+    <rect x="0" y="0" width="220" height="45" rx="4" fill="#F7F6F2" stroke="#1A1A1A" stroke-width="1" />
+    <text x="10" y="20" font-size="11" font-weight="bold" fill="#1A1A1A">Speech-Synthesis Modality</text>
+    <text x="10" y="35" font-size="9" fill="#1A1A1A" opacity="0.6">Gemini Live voice guidelines</text>
+  </g>
+
+  <!-- Right Column: External integrations & Carriers -->
+  <rect x="620" y="90" width="240" height="360" rx="6" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5" />
+  <rect x="620" y="90" width="240" height="35" rx="6" fill="#1A1A1A" opacity="0.8" />
+  <text x="630" y="112" font-size="12" font-weight="bold" fill="#FFFFFF">3. External Integrations</text>
+  
+  <g transform="translate(630, 140)">
+    <rect x="0" y="0" width="220" height="40" rx="4" fill="#F7F6F2" stroke="#1A1A1A" stroke-width="1" />
+    <text x="10" y="24" font-size="11" font-weight="bold" fill="#1A1A1A">SafeDrive carrier Gateway</text>
+  </g>
+  
+  <g transform="translate(630, 195)">
+    <rect x="0" y="0" width="220" height="40" rx="4" fill="#F7F6F2" stroke="#1A1A1A" stroke-width="1" />
+    <text x="10" y="24" font-size="11" font-weight="bold" fill="#1A1A1A">MIME Email Dispatch API</text>
+  </g>
+  
+  <g transform="translate(630, 250)">
+    <rect x="0" y="0" width="220" height="40" rx="4" fill="#F7F6F2" stroke="#1A1A1A" stroke-width="1" />
+    <text x="10" y="24" font-size="11" font-weight="bold" fill="#1A1A1A">Firebase Storage buckets</text>
+  </g>
+
+  <!-- Flow Arrows & Connectors -->
+  <path d="M 280 270 L 330 270" stroke="#1A1A1A" stroke-width="1.5" fill="none" stroke-dasharray="4" />
+  <polygon points="330,270 322,266 322,274" fill="#1A1A1A" />
+  <text x="285" y="260" font-size="9" font-family="monospace">HTTPS</text>
+
+  <path d="M 570 270 L 620 270" stroke="#1A1A1A" stroke-width="1.5" fill="none" stroke-dasharray="4" />
+  <polygon points="620,270 612,266 612,274" fill="#1A1A1A" />
+  <text x="575" y="260" font-size="9" font-family="monospace">A2A</text>
+
+  <path d="M 570 160 L 620 160" stroke="#1A1A1A" stroke-width="1.5" fill="none"/>
+  <polygon points="620,160 162,156" fill="#1A1A1A" />
+
+  <!-- Legend -->
+  <rect x="40" y="475" width="820" height="45" rx="4" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1" />
+  <circle cx="60" cy="497" r="5" fill="#1A1A1A" />
+  <text x="75" y="501" font-size="11" font-weight="bold">Standard Georgia Font Pairings</text>
+  
+  <circle cx="300" cy="497" r="5" fill="#3b82f6" />
+  <text x="315" y="501" font-size="11" font-weight="bold">Interactive On-Device Mobile Sandbox</text>
+
+  <circle cx="620" cy="497" r="5" fill="#10b981" />
+  <text x="635" y="501" font-size="11" font-weight="bold">Cloud Run Pipeline Active</text>
+</svg>
