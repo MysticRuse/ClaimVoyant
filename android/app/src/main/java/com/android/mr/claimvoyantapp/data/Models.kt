@@ -76,6 +76,16 @@ data class SseEvent(
     val data: SseEventData?
 )
 
+/** Result produced by [VideoAnalyzer] – frame paths + AI-generated assessment. */
+data class VideoAnalysisResult(
+    val damagedAreas: List<String>,
+    val severity: String,               // "minor" | "moderate" | "severe"
+    val damageDescription: String,
+    val incidentNarrative: String,
+    val frameUris: List<String>,        // absolute paths to cached JPEG frames
+    val usedCloudFallback: Boolean
+)
+
 data class SseEventData(
     val text: String? = null,
     val risk_score: Int? = null,

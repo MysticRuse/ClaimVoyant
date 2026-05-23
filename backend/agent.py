@@ -52,7 +52,7 @@ def _parse_loose_date(text: str) -> Optional[datetime]:
             continue
     try:
         # Fallback to standard isotime
-        return datetime.fromisoformat(text.replace("Z", "+00:00")).replace(tzinfo=None)
+        return datetime.fromisoformat(text.replace("Z", "+00:00"))
     except Exception:
         return None
 
@@ -91,7 +91,7 @@ def check_fraud(license_number: str, package: Optional[ClaimPackage] = None) -> 
         risk_notes.append("Driver's license does not comply with CA, NY, TX, FL, or WA structural formats.")
 
     if package:
-        sub_date = _parse_loose_date(package.submitted_at) or datetime.now().replace(tzinfo=None)
+        sub_date = _parse_loose_date(package.submitted_at) or datetime.utcnow()
         
         # DL Expiry Check
         if package.parties:

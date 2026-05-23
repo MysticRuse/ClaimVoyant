@@ -110,11 +110,7 @@ async def stream_claim_events(claim_id: str):
         
         # Step 5: email_sent adjustor notifications dispatch
         email_addr = decision.insurer_email if decision else "adjuster@insurer.com"
-        from insurer_email import send_confirmation_email
         await send_insurer_email(package, decision.claim_number if decision else "", decision.summary if decision else "", decision, decision.approved if decision else True)
-        for party in package.parties:
-            if party.email:
-                await send_confirmation_email(party.email, decision.claim_number if decision else "", decision.summary if decision else "", package)
         yield f"data: {json.dumps({'event': 'email_sent', 'data': {'text': f'MIME HTML loss summary email dispatched to {email_addr}.'}})}\n\n"
         await asyncio.sleep(1.5)
         
