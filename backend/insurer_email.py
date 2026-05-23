@@ -1,4 +1,5 @@
 import html
+import os
 import httpx
 import logging
 import smtplib
@@ -109,21 +110,66 @@ def _build_insurer_html(package: ClaimPackage, claim_number: str, agent_summary:
     </html>
     """
 
-async def send_insurer_email(package: ClaimPackage, claim_number: str, agent_summary: str = "", agent_result: Any = None, approved: bool = True) -> Dict[str, Any]:
-    # Simulation stub dispatch logic as specified in step instructions
+async def send_insurer_email(package, claim_number: str, agent_summary: str = "", agent_result=None, approved: bool = True):
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
     insurer = package.parties[0].insurer if package.parties else "your insurer"
     to_addr = INSURER_EMAIL_REGISTRY.get(insurer, INSURER_EMAIL_FALLBACK)
-    
     html_report = _build_insurer_html(package, claim_number, agent_summary, agent_result.fraud_detail if agent_result else {}, approved)
-    
-    logger.info("MIME email generated successfully for adjusting target: %s", to_addr)
-    return {
-        "sent": True,
-        "via": "smtp_simulation_ledger",
-        "to": to_addr,
-        "payload_size": len(html_report)
-    }
+    smtp_user = os.environ.get("SMTP_USER")
+    smtp_pass = os.environ.get("SMTP_PASSWORD")
+    if smtp_user and smtp_pass:
+        try:
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = "ClaimVoyant FNOL Report - " + claim_number
+            msg["From"] = smtp_user
+            msg["To"] = to_addr
+            msg.attach(MIMEText(html_report, "html"))
+            with smtplib.SMTP("smtp.gmail.com", 587) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.sendmail(smtp_user, to_addr, msg.as_string())
+            logger.info("SMTP email sent to %s for claim %s", to_addr, claim_number)
+            return {"sent": True, "via": "smtp_gmail", "to": to_addr}
+        except Exception as e:
+            logger.error("SMTP send failed: %s", e)
+            return {"sent": False, "via": "smtp_gmail", "error": str(e)}
+    else:
+        logger.info("SMTP env vars missing - simulation mode for claim %s", claim_number)
+        return {"sent": True, "via": "smtp_simulation_ledger", "to": to_addr, "payload_size": len(html_report)}
 
-async def send_confirmation_email(to: str, claim_number: str, summary: str) -> bool:
-    logger.info("Outbound SMTP Policyholder mail logged: claim %s to %s", claim_number, to)
-    return True
+
+async def send_confirmation_email(to: str, claim_number: str, summary: str, package=None) -> bool:
+    smtp_user = os.environ.get("SMTP_USER")
+    smtp_pass = os.environ.get("SMTP_PASSWORD")
+    if not smtp_user or not smtp_pass:
+        logger.info("SMTP env vars missing - skipping confirmation to %s", to)
+        return False
+    try:
+        party_rows = ""
+        if package and package.parties:
+            p = package.parties[0]
+            party_rows = "<tr><td><b>Name</b></td><td>" + p.name + "</td></tr><tr><td><b>Policy</b></td><td>" + p.policy_number + "</td></tr><tr><td><b>Insurer</b></td><td>" + p.insurer + "</td></tr>"
+        damage_rows = ""
+        if package:
+            d = package.damage
+            damage_rows = "<tr><td><b>Severity</b></td><td>" + d.severity + "</td></tr><tr><td><b>Driveable</b></td><td>" + ("Yes" if d.vehicle_drivable else "No") + "</td></tr>"
+        html = "<html><body style='font-family:sans-serif;padding:32px'><h1>Your Claim Has Been Filed</h1><p>Claim: <b>" + claim_number + "</b></p><table>" + party_rows + damage_rows + "</table><p>" + summary + "</p><p style='color:#999'>Automated notification from ClaimVoyant.</p></body></html>"
+        import smtplib
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.text import MIMEText
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Your Claim " + claim_number + " Has Been Filed - ClaimVoyant"
+        msg["From"] = smtp_user
+        msg["To"] = to
+        msg.attach(MIMEText(html, "html"))
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.sendmail(smtp_user, to, msg.as_string())
+        logger.info("Confirmation email sent to %s for claim %s", to, claim_number)
+        return True
+    except Exception as e:
+        logger.error("Confirmation email failed for %s: %s", to, e)
+        return False
