@@ -1,16 +1,17 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.android.app)
+    alias(libs.plugins.kotlin.compose.plugin)
+    alias(libs.plugins.kotlin.android.plugin)
 }
 
 android {
     namespace 'com.android.mr.claimvoyantapp'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.android.mr.claimvoyantapp"
         minSdk 26
-        targetSdk 34
+        targetSdk 36
         versionCode 1
         versionName "1.0.0"
 
@@ -18,6 +19,12 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        // Expose secrets from local.properties as BuildConfig fields
+        def localProperties = new Properties()
+        localProperties.load(rootProject.file('local.properties').newDataInputStream())
+        buildConfigField "String", "GEMINI_API_KEY",    "\"${localProperties['gemini.api.key'] ?: ''}\""
+        buildConfigField "String", "BACKEND_BASE_URL",  "\"${localProperties['BASE_URL']       ?: 'https://claimvoyant-api-395261322066.us-central1.run.app/'}\""
     }
 
     buildTypes {
@@ -30,42 +37,56 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = '17'
-    }
     buildFeatures {
         compose true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.5.1'
+        buildConfig true
     }
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
-    implementation 'androidx.activity:activity-compose:1.8.0'
-    implementation platform('androidx.compose:compose-bom:2023.08.00')
-    implementation 'androidx.compose.ui:ui'
-    implementation 'androidx.compose.ui:ui-graphics'
-    implementation 'androidx.compose.ui:ui-tooling-preview'
-    implementation 'androidx.compose.material3:material3'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2'
-    
-    // Media and HTTP network APIs
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
-    implementation 'io.coil-kt:coil-compose:2.4.0'
+    // AndroidX core
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.lifecycle.viewmodel.compose
+    implementation libs.androidx.activity.compose
+
+    // Compose
+    implementation platform(libs.androidx.compose.bom)
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.ui.graphics
+    implementation libs.androidx.compose.ui.tooling.preview
+    implementation libs.androidx.compose.material3
+    debugImplementation libs.androidx.compose.ui.tooling
+    debugImplementation libs.androidx.compose.ui.test.manifest
+
+    // Networking
+    implementation libs.retrofit
+    implementation libs.retrofit.gson
+    implementation libs.okhttp
+    implementation libs.okhttp.logging
+    implementation libs.okhttp.sse
+
+    // Image loading
+    implementation libs.coil.compose
+
+    // Google AI (Gemini cloud)
+    implementation libs.generativeai
+
+    // MLKit GenAI (on-device Gemma Nano)
+    implementation libs.mlkit.genai
 
     // Testing
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+    androidTestImplementation platform(libs.androidx.compose.bom)
+    androidTestImplementation libs.androidx.compose.ui.test.junit4
 }

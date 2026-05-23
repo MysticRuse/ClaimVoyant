@@ -1,0 +1,49 @@
+# ── IDE ───────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# ── Android ───────────────────────────────────────
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/google-services.json
+android/*.apk
+android/*.aab
+android/captures/
+android/.externalNativeBuild/
+android/.cxx/
+android/*.hprof
+android/*.jks
+android/*.keystore
+
+# ── Node / Frontend ───────────────────────────────
+node_modules/
+dist/
+.next/
+.nuxt/
+.output/
+*.tsbuildinfo
+
+# ── Environment / Secrets ─────────────────────────
+.env
+.env.local
+.env.*.local
+*.key
+
+# ── Backend ───────────────────────────────────────
+backend/__pycache__/
+backend/*.pyc
+backend/.venv/
+backend/venv/
+backend/.env
+
+# ── OS ────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Logs ──────────────────────────────────────────
+*.log
+npm-debug.log*
