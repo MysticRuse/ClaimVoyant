@@ -1,28 +1,20 @@
 package com.android.mr.claimvoyantapp
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.mr.claimvoyantapp.ui.AppStep
@@ -31,10 +23,8 @@ import com.android.mr.claimvoyantapp.ui.theme.ClaimVoyantTheme
 import com.android.mr.claimvoyantapp.ui.theme.CanvasBackground
 import com.android.mr.claimvoyantapp.ui.theme.SolidBorder
 import com.android.mr.claimvoyantapp.ui.views.ArtifactCollectionScreen
-import com.android.mr.claimvoyantapp.ui.views.VideoAnalysisScreen
 import com.android.mr.claimvoyantapp.ui.views.ReviewScreen
 import com.android.mr.claimvoyantapp.ui.views.StreamingScreen
-import com.android.mr.claimvoyantapp.ui.views.VideoCaptureScreen
 import com.android.mr.claimvoyantapp.ui.views.VoiceGuideScreen
 
 class MainActivity : ComponentActivity() {
@@ -55,230 +45,109 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// ── Persistent app shell ──────────────────────────────────────────────────
-
 @Composable
 fun AppMainLayout(viewModel: ClaimViewModel) {
     Column(modifier = Modifier.fillMaxSize()) {
-
-        // Navbar — matches web design header
+        // Masthead header bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(CanvasBackground)
-                .drawBehind {
-                    val strokeWidth = 1.dp.toPx()
-                    val y = size.height - strokeWidth / 2
-                    drawLine(SolidBorder, Offset(0f, y), Offset(size.width, y), strokeWidth)
-                }
-                .padding(horizontal = 20.dp, vertical = 14.dp),
+                .border(bottom = 1.dp, color = SolidBorder)
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Bottom
         ) {
-            Text(
-                text = "ClaimVoyant",
-                fontSize = 22.sp,
-                fontFamily = FontFamily.Serif,
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF1A1A1A)
-            )
-            Column(horizontalAlignment = Alignment.End) {
-                Text("Release: v2.4.0 Live voice", fontSize = 10.sp, fontFamily = FontFamily.Monospace, color = Color.Gray)
-                Text("Target: Future of Work",     fontSize = 10.sp, fontFamily = FontFamily.Monospace, color = Color.Gray)
+            Column {
+                Text(
+                    text = "MVVM COMPOSE FLIGHT",
+                    fontSize = 9.sp,
+                    fontFamily = FontFamily.Monospace,
+                    color = Color.Gray,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "ClaimVoyant Mobile",
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.Serif,
+                    fontStyle = FontStyle.Italic,
+                    color = Color(0xFF1A1A1A)
+                )
             }
+            Text(
+                text = "v1.0.0",
+                fontSize = 10.sp,
+                fontFamily = FontFamily.Monospace,
+                color = Color.Gray
+            )
         }
 
-        // Screen router
+        // Router screens viewport container
         Box(modifier = Modifier.weight(1f)) {
             when (viewModel.currentStep) {
-                AppStep.LANDING             -> LandingScreen(onStart = { viewModel.startClaim() })
-                AppStep.VOICE_GUIDE         -> VoiceGuideScreen(viewModel)
-                AppStep.VIDEO_CAPTURE       -> VideoCaptureScreen(viewModel)
-                AppStep.VIDEO_ANALYSIS      -> VideoAnalysisScreen(viewModel)
+                AppStep.LANDING -> LandingScreen(onStart = { viewModel.startClaim() })
+                AppStep.VOICE_GUIDE -> VoiceGuideScreen(viewModel)
                 AppStep.ARTIFACT_COLLECTION -> ArtifactCollectionScreen(viewModel)
-                AppStep.ANALYSIS_COMPILING  -> AnalysisCompilingScreen()
-                AppStep.REVIEWS             -> ReviewScreen(viewModel)
-                AppStep.STREAMING_LEDGER    -> StreamingScreen(viewModel)
+                AppStep.ANALYSIS_COMPILING -> AnalysisCompilingScreen()
+                AppStep.REVIEWS -> ReviewScreen(viewModel)
+                AppStep.STREAMING_LEDGER -> StreamingScreen(viewModel)
             }
         }
     }
 }
 
-// ── Landing screen ────────────────────────────────────────────────────────
-
-private data class FeatureItem(
-    val icon: String,
-    val iconBg: Color,
-    val title: String,
-    val description: String
-)
-
-private val FEATURE_ITEMS = listOf(
-    FeatureItem(
-        icon = "🎙",
-        iconBg = Color(0xFFEFF6FF),
-        title = "Real-time Voice",
-        description = "Describe the collision verbally. Our conversational agent registers details automatically."
-    ),
-    FeatureItem(
-        icon = "⚡",
-        iconBg = Color(0xFFF0FDF4),
-        title = "On-device Assessor",
-        description = "Automatic vehicle damage and OCR card parsing via Gemini Multi-modal vision analysis."
-    ),
-    FeatureItem(
-        icon = "🛡",
-        iconBg = Color(0xFFF5F3FF),
-        title = "Verified Submission",
-        description = "Immediate fraud metrics and instant A2A FNOL carrier notification pipeline."
-    )
-)
-
 @Composable
 fun LandingScreen(onStart: () -> Unit) {
-    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(CanvasBackground)
-            .verticalScroll(rememberScrollState())          // scrollable so nothing clips in landscape
-            .padding(
-                horizontal = 24.dp,
-                vertical = if (isLandscape) 16.dp else 32.dp
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(if (isLandscape) 20.dp else 28.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start
     ) {
-
-        // ── Hero text ─────────────────────────────────────────────────────
         Text(
-            text = "AI-powered accident documentation. Talk to our digital voice agent, " +
-                   "take photos, and automatically register your claim under 5 minutes.",
-            fontSize = if (isLandscape) 18.sp else 22.sp,
+            text = "FUTURE OF WORK SPECIAL BRIEF",
+            fontSize = 11.sp,
+            fontFamily = FontFamily.Monospace,
+            color = Color.Gray,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Text(
+            text = "Accident Documentation On-Scene Engine",
+            fontSize = 36.sp,
+            fontFamily = FontFamily.Serif,
+            fontStyle = FontStyle.Italic,
             color = Color(0xFF1A1A1A),
-            textAlign = TextAlign.Center,
-            lineHeight = if (isLandscape) 26.sp else 32.sp
+            lineHeight = 44.sp,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        Text(
+            text = "An intelligent mobile application ensuring rapid First Notice of Loss registration. Integrates custom voice transcribers, on-device document OCR, and progressive audit streams to Cloud Run FastAPI backends.",
+            fontSize = 15.sp,
+            color = Color.DarkGray,
+            lineHeight = 22.sp,
+            modifier = Modifier.padding(bottom = 32.dp)
         )
 
-        // ── Feature cards — Column in portrait, Row in landscape ──────────
-        if (isLandscape) {
-            // Landscape: three cards side by side, equal weight
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                FEATURE_ITEMS.forEach { item ->
-                    FeatureCard(
-                        item = item,
-                        isLandscape = true,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(160.dp)
-                    )
-                }
-            }
-        } else {
-            // Portrait: three cards stacked, full width, compact horizontal internal layout
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                FEATURE_ITEMS.forEach { item ->
-                    FeatureCard(
-                        item = item,
-                        isLandscape = false,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
-
-        // ── CTA button ────────────────────────────────────────────────────
         Button(
             onClick = onStart,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF111827)),
-            shape = RoundedCornerShape(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = SolidBorder),
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(if (isLandscape) 48.dp else 56.dp)
+                .fillMaxWidth()
+                .border(1.dp, Color.White)
         ) {
             Text(
-                text = "Start Claim Conversation  →",
+                text = "Start Claim Conversation",
                 color = Color.White,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 0.3.sp
+                fontSize = 14.sp,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.padding(vertical = 6.dp)
             )
         }
     }
 }
-
-/**
- * Single feature card — adapts its internal layout to orientation.
- *
- * Portrait  (isLandscape = false): Row layout — icon on the left, title + description on the right.
- *                                   Card height wraps content (~110 dp).
- * Landscape (isLandscape = true):  Column layout — icon on top, title, then description below.
- *                                   Caller fixes the height so the three cards in a Row align.
- */
-@Composable
-private fun FeatureCard(
-    item: FeatureItem,
-    isLandscape: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-    ) {
-        if (isLandscape) {
-            // ── Landscape: vertical stack ─────────────────────────────────
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                IconCircle(icon = item.icon, bg = item.iconBg, size = 40)
-                Text(item.title,       fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
-                Text(item.description, fontSize = 11.sp, color = Color(0xFF6B7280), lineHeight = 15.sp)
-            }
-        } else {
-            // ── Portrait: horizontal — icon left, text right ──────────────
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                IconCircle(icon = item.icon, bg = item.iconBg, size = 46)
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(item.title,       fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color(0xFF111827))
-                    Text(item.description, fontSize = 12.sp, color = Color(0xFF6B7280), lineHeight = 18.sp)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun IconCircle(icon: String, bg: Color, size: Int) {
-    Box(
-        modifier = Modifier
-            .size(size.dp)
-            .background(bg, CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = icon, fontSize = (size * 0.46f).sp)
-    }
-}
-
-// ── Analysis compiling interstitial ──────────────────────────────────────
 
 @Composable
 fun AnalysisCompilingScreen() {

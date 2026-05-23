@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,7 +32,7 @@ fun StreamingScreen(
     ) {
         // Timeline Header
         Text(
-            text = "STEP 6 of 6",
+            text = "STEP 4 of 4",
             fontSize = 11.sp,
             fontFamily = FontFamily.Monospace,
             color = Color.Gray,
@@ -54,58 +53,8 @@ fun StreamingScreen(
             fontFamily = FontFamily.Monospace,
             color = if (viewModel.streamIsRunning) Color(0xFF2563EB) else Color(0xFF10B981),
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-
-        // Live / Mock badge — shows as soon as we know which path ran
-        viewModel.isLiveBackend?.let { isLive ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(bottom = 12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (isLive) Color(0xFFECFDF5) else Color(0xFFF3F4F6),
-                            RoundedCornerShape(4.dp)
-                        )
-                        .border(
-                            0.5.dp,
-                            if (isLive) Color(0xFF10B981) else Color.LightGray,
-                            RoundedCornerShape(4.dp)
-                        )
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
-                ) {
-                    Text(
-                        text = if (isLive) "● LIVE — Cloud Run Backend" else "◈ DEMO — Local Simulation",
-                        fontSize = 10.sp,
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
-                        color = if (isLive) Color(0xFF059669) else Color.Gray
-                    )
-                }
-            }
-        }
-
-        // Error reason when running in mock mode
-        if (viewModel.isLiveBackend == false && viewModel.backendErrorMsg != null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFFFF7ED), RoundedCornerShape(4.dp))
-                    .border(0.5.dp, Color(0xFFFBBF24), RoundedCornerShape(4.dp))
-                    .padding(horizontal = 10.dp, vertical = 6.dp)
-                    .padding(bottom = 10.dp)
-            ) {
-                Text(
-                    text = "Backend unreachable: ${viewModel.backendErrorMsg}",
-                    fontSize = 10.sp,
-                    fontFamily = FontFamily.Monospace,
-                    color = Color(0xFF92400E)
-                )
-            }
-        }
 
         // Events Log list view
         LazyColumn(
