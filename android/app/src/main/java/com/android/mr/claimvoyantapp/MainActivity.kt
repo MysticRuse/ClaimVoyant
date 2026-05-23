@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -41,6 +42,10 @@ class MainActivity : ComponentActivity() {
     private val viewModel: ClaimViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // enableEdgeToEdge() makes the app draw behind the status bar and
+        // nav bar.  AppMainLayout then adds windowInsetsPadding(systemBars)
+        // so no content is ever obscured — works consistently on API 26–35+.
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             ClaimVoyantTheme {
@@ -59,9 +64,14 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun AppMainLayout(viewModel: ClaimViewModel) {
-    Column(modifier = Modifier.fillMaxSize()) {
-
-        // Navbar — matches web design header
+    // windowInsetsPadding(systemBars) pushes the whole layout below the status
+    // bar and above the navigation bar, preventing any overlap on all devices.
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.systemBars)
+    ) {
+        // Navbar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -138,91 +148,94 @@ private val FEATURE_ITEMS = listOf(
 @Composable
 fun LandingScreen(onStart: () -> Unit) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val itemSpacing = if (isLandscape) 20.dp else 28.dp
 
-    Column(
+    // BoxWithConstraints gives us the available height so we can force the
+    // inner Column to be *at least* that tall.  Combined with
+    // Arrangement.spacedBy(…, CenterVertically) this genuinely centers the
+    // content both axes.  If content is taller than the screen it scrolls
+    // naturally — heightIn(min) just becomes a no-op in that case.
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(CanvasBackground)
-            .verticalScroll(rememberScrollState())          // scrollable so nothing clips in landscape
-            .padding(
-                horizontal = 24.dp,
-                vertical = if (isLandscape) 16.dp else 32.dp
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(if (isLandscape) 20.dp else 28.dp)
     ) {
+        val screenHeight = maxHeight
 
-        // ── Hero text ─────────────────────────────────────────────────────
-        Text(
-            text = "AI-powered accident documentation. Talk to our digital voice agent, " +
-                   "take photos, and automatically register your claim under 5 minutes.",
-            fontSize = if (isLandscape) 18.sp else 22.sp,
-            color = Color(0xFF1A1A1A),
-            textAlign = TextAlign.Center,
-            lineHeight = if (isLandscape) 26.sp else 32.sp
-        )
-
-        // ── Feature cards — Column in portrait, Row in landscape ──────────
-        if (isLandscape) {
-            // Landscape: three cards side by side, equal weight
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                FEATURE_ITEMS.forEach { item ->
-                    FeatureCard(
-                        item = item,
-                        isLandscape = true,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(160.dp)
-                    )
-                }
-            }
-        } else {
-            // Portrait: three cards stacked, full width, compact horizontal internal layout
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                FEATURE_ITEMS.forEach { item ->
-                    FeatureCard(
-                        item = item,
-                        isLandscape = false,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
-
-        // ── CTA button ────────────────────────────────────────────────────
-        Button(
-            onClick = onStart,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF111827)),
-            shape = RoundedCornerShape(50.dp),
+        Column(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(if (isLandscape) 48.dp else 56.dp)
+                .fillMaxWidth()
+                .heightIn(min = screenHeight)          // ensures CenterVertically has room to work
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = if (isLandscape) 16.dp else 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            // spacedBy + CenterVertically = items spaced AND the whole group centred
+            verticalArrangement = Arrangement.spacedBy(itemSpacing, Alignment.CenterVertically)
         ) {
+
+            // ── Hero text ─────────────────────────────────────────────────
             Text(
-                text = "Start Claim Conversation  →",
-                color = Color.White,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 0.3.sp
+                text = "Speak your incident. Record the scene. Let Gemini assess the damage and file your FNOL claim — before you leave the kerb.",
+                //text = "AI-powered accident documentation. Talk to our digital voice agent, " +
+                //       "take photos, and automatically register your claim under 5 minutes.",
+                fontSize = if (isLandscape) 18.sp else 22.sp,
+                color = Color(0xFF1A1A1A),
+                textAlign = TextAlign.Center,
+                lineHeight = if (isLandscape) 26.sp else 32.sp
             )
+
+            // ── Feature cards — Column portrait / Row landscape ───────────
+            if (isLandscape) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    FEATURE_ITEMS.forEach { item ->
+                        FeatureCard(
+                            item = item,
+                            isLandscape = true,
+                            modifier = Modifier.weight(1f).height(160.dp)
+                        )
+                    }
+                }
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    FEATURE_ITEMS.forEach { item ->
+                        FeatureCard(
+                            item = item,
+                            isLandscape = false,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+
+            // ── CTA button ────────────────────────────────────────────────
+            Button(
+                onClick = onStart,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF111827)),
+                shape = RoundedCornerShape(50.dp),
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .height(if (isLandscape) 48.dp else 56.dp)
+            ) {
+                Text(
+                    text = "Start Claim Conversation  →",
+                    color = Color.White,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.3.sp
+                )
+            }
         }
     }
 }
 
-/**
- * Single feature card — adapts its internal layout to orientation.
- *
- * Portrait  (isLandscape = false): Row layout — icon on the left, title + description on the right.
- *                                   Card height wraps content (~110 dp).
- * Landscape (isLandscape = true):  Column layout — icon on top, title, then description below.
- *                                   Caller fixes the height so the three cards in a Row align.
- */
+// ── Feature card ──────────────────────────────────────────────────────────
+
 @Composable
 private fun FeatureCard(
     item: FeatureItem,
@@ -236,11 +249,9 @@ private fun FeatureCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         if (isLandscape) {
-            // ── Landscape: vertical stack ─────────────────────────────────
+            // Vertical stack: icon → title → description
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(14.dp),
+                modifier = Modifier.fillMaxSize().padding(14.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 IconCircle(icon = item.icon, bg = item.iconBg, size = 40)
@@ -248,11 +259,9 @@ private fun FeatureCard(
                 Text(item.description, fontSize = 11.sp, color = Color(0xFF6B7280), lineHeight = 15.sp)
             }
         } else {
-            // ── Portrait: horizontal — icon left, text right ──────────────
+            // Horizontal: icon left, title + description right
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {

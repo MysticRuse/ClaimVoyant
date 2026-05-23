@@ -21,9 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -41,14 +43,11 @@ fun VoiceGuideScreen(
     val context = LocalContext.current
 
     // ── State ──────────────────────────────────────────────────────────────
-    // Connected to the ViewModel so the text survives screen navigation
+    // isPlaceholder = true  → showing the representative example text (italic/gray)
+    // isPlaceholder = false → user has started recording or typing real content
+    val isPlaceholder = remember { mutableStateOf(viewModel.voiceSummary.isEmpty()) }
     val descTextState = remember {
-        mutableStateOf(
-            viewModel.voiceSummary.ifEmpty {
-                "Rear-end impact on freeway exit. Other driver merged abruptly. " +
-                "Insurer matches SafeDrive policy POL-9999. Airbags did not deploy. Car is driveable."
-            }
-        )
+        mutableStateOf(viewModel.voiceSummary)   // empty on first visit; real text on return
     }
     var mockWaveScale by remember { mutableStateOf(1f) }
 
@@ -70,12 +69,13 @@ fun VoiceGuideScreen(
             override fun onRmsChanged(rmsdB: Float) {}
             override fun onBufferReceived(buffer: ByteArray?) {}
 
-            // Partial results → update text in real-time as user speaks
+            // Partial results → replace placeholder immediately, show live transcript
             override fun onPartialResults(partialResults: Bundle?) {
                 val partial = partialResults
                     ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     ?.firstOrNull()
                 if (!partial.isNullOrEmpty()) {
+                    isPlaceholder.value = false
                     descTextState.value = partial
                 }
             }
@@ -86,6 +86,7 @@ fun VoiceGuideScreen(
                     ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     ?.firstOrNull()
                 if (!text.isNullOrEmpty()) {
+                    isPlaceholder.value = false
                     descTextState.value = text
                     viewModel.voiceSummary = text
                 }
@@ -247,21 +248,70 @@ fun VoiceGuideScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Transcription text field — reads from and writes to ViewModel
+        // ── Transcription field ────────────────────────────────────────────
+        // Label row: field title + EXAMPLE badge when placeholder is active
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
+        ) {
+            Text(
+                text = "Accident Narrative",
+                fontSize = 11.sp,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray
+            )
+            if (isPlaceholder.value) {
+                Box(
+                    modifier = Modifier
+                        .background(Color(0xFFFFF7ED), RoundedCornerShape(4.dp))
+                        .border(0.5.dp, Color(0xFFFBBF24), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 7.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "EXAMPLE — speak or type to replace",
+                        fontSize = 9.sp,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF92400E)
+                    )
+                }
+            }
+        }
+
         OutlinedTextField(
-            value = descTextState.value,
-            onValueChange = {
-                descTextState.value = it
-                viewModel.voiceSummary = it     // keep ViewModel in sync with manual edits
+            // Show placeholder text when no real input yet; real text otherwise
+            value = if (isPlaceholder.value) NARRATIVE_PLACEHOLDER else descTextState.value,
+            onValueChange = { newVal ->
+                isPlaceholder.value = false          // first keystroke exits placeholder mode
+                descTextState.value = newVal
+                viewModel.voiceSummary = newVal
             },
-            label = { Text("Transcribed Accident Narrative Summary") },
+            placeholder = {
+                Text(
+                    "Tap Record and describe what happened…",
+                    fontStyle = FontStyle.Italic,
+                    color = Color.LightGray,
+                    fontSize = 13.sp
+                )
+            },
+            textStyle = TextStyle(
+                // Italic + muted colour while example; normal black once real
+                fontStyle  = if (isPlaceholder.value) FontStyle.Italic  else FontStyle.Normal,
+                color      = if (isPlaceholder.value) Color(0xFF9CA3AF) else Color(0xFF111827),
+                fontSize   = 13.sp,
+                lineHeight = 20.sp
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .background(Color.White),
+                .background(if (isPlaceholder.value) Color(0xFFFAFAF8) else Color.White),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = SolidBorder,
-                unfocusedBorderColor = SolidBorder
+                focusedBorderColor   = if (isPlaceholder.value) Color(0xFFFBBF24) else SolidBorder,
+                unfocusedBorderColor = if (isPlaceholder.value) Color(0xFFD1C4A0) else SolidBorder,
+                focusedTextColor     = Color(0xFF111827),
+                unfocusedTextColor   = Color(0xFF9CA3AF)
             )
         )
 
@@ -284,8 +334,10 @@ fun VoiceGuideScreen(
 
             Button(
                 onClick = {
+                    // Don't commit example placeholder text as the real summary
+                    val summary = if (isPlaceholder.value) "" else descTextState.value
                     viewModel.completeVoiceOnboarding(
-                        summary = descTextState.value,
+                        summary = summary,
                         name = "Jane Smith",
                         insurer = "SafeDrive Insurance",
                         policy = "POL-9999",
@@ -304,3 +356,16 @@ fun VoiceGuideScreen(
         }
     }
 }
+
+/**
+ * Representative sample narrative shown as a placeholder until the user
+ * records or types their own description.  Styled italic + muted grey in
+ * the field so it is visually distinct from real user input.
+ */
+private const val NARRATIVE_PLACEHOLDER =
+    "Rear-end collision on the I-280 freeway exit ramp travelling at approximately " +
+    "35 mph. The third-party vehicle changed lanes abruptly without signalling, " +
+    "causing contact with the front bumper and hood of my vehicle. Airbags did not " +
+    "deploy. Vehicle remains driveable with visible cosmetic damage to the front fascia " +
+    "and bonnet. No injuries reported at scene. Other driver confirmed SafeDrive " +
+    "Insurance coverage, policy number POL-9999."
