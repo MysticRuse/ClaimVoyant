@@ -8,10 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
 
-from .models import ClaimPackage, ClaimResponse, ErrorResponse
-from .agent import InsurerAgent, AgentResult
-from .email import send_insurer_email
-from .voice import VoiceGuideAgent
+from models import ClaimPackage, ClaimResponse, ErrorResponse
+from agent import InsurerAgent, AgentResult
+from insurer_email import send_insurer_email
+from voice import VoiceGuideAgent
 
 app = FastAPI(
     title="ClaimVoyant API Backend",
@@ -62,7 +62,7 @@ async def create_claim(package: ClaimPackage):
         claim_decisions[claim_id] = decision
     except Exception as e:
         # Fallback to simulation decision block
-        from .agent import AgentResult
+        from agent import AgentResult
         decision = AgentResult(
             claim_number=f"CR-2026-{uuid.uuid4().hex[:5].upper()}",
             approved=True,

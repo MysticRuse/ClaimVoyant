@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 import httpx
-from .models import ClaimPackage, Party
+from models import ClaimPackage, Party
 
 logger = logging.getLogger("ClaimVoyant.agent")
 
@@ -301,7 +301,7 @@ class InsurerAgent:
         else:
             summary_statement = f"Elevated fraud scoring triggered manual claim hold. Indicator notes: {', '.join(fr_check['risk_notes'])}"
 
-        from .email import INSURER_EMAIL_REGISTRY, INSURER_EMAIL_FALLBACK
+        from insurer_email import INSURER_EMAIL_REGISTRY, INSURER_EMAIL_FALLBACK
         email_addr = INSURER_EMAIL_REGISTRY.get(insurer, INSURER_EMAIL_FALLBACK)
 
         return AgentResult(
@@ -346,7 +346,7 @@ Produce your final response as JSON matching:
   "summary": "1-2 sentence claim decision overview."
 }}
 """
-        from .email import INSURER_EMAIL_REGISTRY, INSURER_EMAIL_FALLBACK
+        from insurer_email import INSURER_EMAIL_REGISTRY, INSURER_EMAIL_FALLBACK
         email_addr = INSURER_EMAIL_REGISTRY.get(insurer, INSURER_EMAIL_FALLBACK)
 
         try:
