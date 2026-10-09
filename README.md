@@ -8,7 +8,7 @@ ClaimVoyant is a next-generation insurance claims platform that transforms the s
 ## 🚀 Key Features (Multimodal Innovation)
 
 ### 👁️ See: AI Damage Assessment
-*   **Video Scene Analysis**: Analyzes accident scene footage using **Gemini 1.5/2.0 Flash (Cloud)** to extract key frames and classify damage.
+*   **Video Scene Analysis**: Analyzes accident scene footage using **Gemini 3.0 Flash (Cloud)** to extract key frames and classify damage.
 *   **On-Device Fallback (Gemma Nano)**: Utilizes **ML Kit GenAI (Gemma Nano)** to generate scene field notes locally on the device when connectivity is limited, ensuring data privacy and robustness.
 *   **Technical Narrative Generation**: Automatically creates high-fidelity technical descriptions and incident narratives for insurance adjusters.
 
