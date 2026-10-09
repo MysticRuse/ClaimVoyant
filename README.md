@@ -13,9 +13,13 @@ ClaimVoyant is a next-generation insurance claims platform that transforms the s
 *   **Tiered Resilience**: Three-tier inference strategy — Gemini 1.5 Flash (cloud, multimodal) → Gemma Nano (on-device, text) → static heuristic fallback. Always functional.
 
 ### 🎙️ Hear & Speak: Voice-First Interaction
-*   **Live Voice Dictation**: Android `SpeechRecognizer` captures accident narratives with partial-result streaming and animated waveform feedback — no system dialog, no network call.
+*   **Live Voice Dictation**: Android `SpeechRecognizer` captures accident narratives with partial-result streaming and animated waveform feedback — no system dialog, no network call. Transcript seeds all downstream form fields.
 *   **Voice Email Input**: `SpeechRecognizer` also captures email addresses by voice (e.g. "jane dot doe at gmail dot com") and normalizes them automatically.
 *   **AI Voice Guide (Aoede)**: `VoiceGuideAgent` powered by **Gemini 2.5 Flash** with `responseModalities: ["AUDIO"]` speaks empathetic, context-aware guidance throughout the claim — using the `Aoede` prebuilt voice. Adapts its script based on claim outcome (`claim_filed`, `flagged`).
+
+### 📎 Evidence Collection
+*   **Photo Capture**: Users photograph the accident scene and documents (insurance card, licence) via the in-app camera or gallery picker.
+*   **Review Pre-population**: The Review screen is pre-populated from voice input (name, insurer, policy number) and hardcoded defaults. All fields are editable before submission. Full on-device OCR extraction from captured documents is planned for a future iteration.
 
 ### 🧭 Live Claim Ledger (SSE Streaming)
 *   **Real-Time Transparency**: A persistent Server-Sent Events connection streams live pipeline progress from the backend — rendered as a sequential event log on-device.
@@ -53,7 +57,7 @@ ClaimVoyant is a next-generation insurance claims platform that transforms the s
 ## 🏗️ System Architecture
 
 1.  **Interaction Layer**: Android app captures voice narrative (on-device STT) and video footage (CameraX).
-2.  **Edge Intelligence**: Gemma Nano (on-device) generates text scene notes when offline. On-device OCR extracts policy card and license data.
+2.  **Edge Intelligence**: Gemma Nano (on-device) generates text scene notes when offline. Review form is pre-populated from voice input; users verify and correct before submission.
 3.  **Cloud Vision Analysis**: Gemini 1.5 Flash analyzes up to 4 extracted video frames for damage classification and structured adjuster field notes.
 4.  **Agentic Orchestration**: FastAPI backend `InsurerAgent` (Gemini 2.0 Flash) runs sequentially:
     *   Fraud risk scoring against registry, license format, and policy expiry
