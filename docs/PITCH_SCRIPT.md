@@ -22,7 +22,7 @@ The first few hours after an accident are the most critical window for capturing
 
 **The problem isn't just inconvenience. It's a broken information pipeline.**
 
-ClaimVoyant fixes that pipeline. It turns a smartphone into a full FNOL field agent — one that sees the damage, hears the story, extracts the documents, checks for fraud in real time, and routes a structured claim to the adjuster before the tow truck even arrives.
+ClaimVoyant fixes that pipeline. It turns a smartphone into a full FNOL field agent — one that sees the damage, hears the story, captures the evidence, checks for fraud in real time, and routes a structured claim to the adjuster before the tow truck even arrives.
 
 I'll hand it over to Mitil to show you exactly how."
 
@@ -84,11 +84,9 @@ And if we're offline? We fall back to **Gemma Nano on-device** — no connectivi
 
 > *Navigate to the Evidence & Document Scan screen.*
 
-"Step four — document artifacts. The driver can photograph their insurance card or driver's license right here.
+"Step four — evidence collection. The driver photographs the damage and any documents — insurance card, driver's license — right here using the camera or their gallery.
 
-We run **on-device OCR extraction** against those images. That pulls the policy number, carrier name, license ID, and expiry date — automatically — and pre-populates the next screen.
-
-No typing. No squinting at a tiny card on the side of the road."
+These photos are attached to the claim package as evidence for the adjuster."
 
 > *Tap 'Run On-Device OCR Analysis'.*
 
@@ -98,7 +96,7 @@ No typing. No squinting at a tiny card on the side of the road."
 
 > *Navigate to the Review screen. Fields are already populated.*
 
-"Step five — the driver just **verifies** what the AI already extracted. Name, policy number, insurer, license — all filled in from the voice input and the OCR scan.
+"Step five — the driver just **verifies** what the AI already extracted. Name, policy number, insurer, license — all pre-populated from the voice narrative captured in step one.
 
 They can still edit anything. And notice the email field — they can even **dictate their email address** by voice. Say 'jane dot doe at gmail dot com' and the app normalizes it automatically.
 
@@ -167,7 +165,7 @@ Thank you."
 - [ ] Device charged, screen brightness max, Do Not Disturb on
 - [ ] App connected to Cloud Run backend (check `● LIVE` badge on Step 6)
 - [ ] Pre-record a short accident scene video clip to avoid fumbling with camera during demo
-- [ ] Pre-load insurance card photo in camera roll for OCR step
+- [ ] Pre-load a photo in camera roll to demonstrate evidence attachment on Step 4
 - [ ] Test full flow end-to-end once immediately before recording
 - [ ] Check adjuster inbox — confirm email arrives for the live run
 - [ ] Keep `DL-66666666` license ID ready if you want to demo the **high fraud / manual hold** path as an alternate ending
