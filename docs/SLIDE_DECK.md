@@ -34,8 +34,8 @@
 
 1. **Speak** — Driver dictates the incident; live voice-to-text seeds all downstream fields
 2. **Film** — CameraX captures the scene; Gemini Flash extracts frames and classifies damage
-3. **Scan** — On-device OCR reads the insurance card and driver's license automatically
-4. **Review** — AI pre-populates a structured FNOL form; driver just verifies
+3. **Scan** — Driver photographs the accident scene and documents; photos are attached as evidence
+4. **Review** — Form is pre-populated from voice input; driver verifies and corrects before submitting
 5. **Transmit** — One tap submits the claim to the backend agent pipeline
 6. **Watch** — A live SSE stream shows fraud check → policy check → A2A dispatch → adjuster email → claim filed
 
@@ -67,7 +67,7 @@
 **ClaimVoyant is the future of work for insurance adjusters**
 
 - Adjusters process hundreds of FNOL packets per week — almost entirely by hand
-- ClaimVoyant automates evidence capture, document extraction, fraud scoring, and structured dispatch in **< 60 seconds**
+- ClaimVoyant automates evidence capture, voice-driven data extraction, fraud scoring, and structured dispatch in **< 60 seconds**
 - The A2A dispatch layer integrates directly into carrier Agent-to-Agent endpoints — a drop-in upgrade to existing insurer workflows
 - Policyholders get a claim number and confirmation email **before the tow truck arrives**
 - Early fraud signals are captured at the scene — not weeks later during manual review
